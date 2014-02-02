@@ -1,10 +1,14 @@
 % Run Script for Project 1 Color Segmentation, ESE 650
 % Written by Qiong Wang at University of Pennsylvania
-% 01/23/2014
+% 01/29/2014
+
+%% Clear up
+clear all;
+clc;
 
 %% Initialize
-trainFlag = true;
-testFlag  = false;
+trainFlag = false;
+testFlag  = true;
 
 %% Path
 scriptDir = fileparts(mfilename('fullpath'));
@@ -31,20 +35,21 @@ if ~testFlag
     return
 end
 
-for i = 1:length(dirstruct),
+for i = 1 : length(dirstruct)
     % Current test image
-    im = imread(fullfile(dataDir, dirstruct(i).name));
+    im = imresize(imread(fullfile(testDir, dirstruct(i).name)), 1/4);
     % My algorithm
-    [x, y, d] = myTest(im);
+    [x, y, d, bound, theta] = myTest(im, cluster, fMeanEst);
     % Display results:
     hf = figure(1);
     image(im);
     hold on;
     plot(x, y, 'g+');
     title(sprintf('Barrel distance: %.1f m', d));
-    % You may also want to plot and display other
-    % diagnostic information such as the outlines
-    % of connected regions, etc.
+    plotBound(bound, 'b');
+    plotBound(bound, 'r', theta);
+    axis off;
     hold off;
-    pause;
+    pause(0.1);
+    print(gcf, '-djpeg', '-r300', fullfile(outputDir, '/test', sprintf('test_%02d', i)));
 end
